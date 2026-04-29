@@ -8,34 +8,18 @@ import { Field } from "welcome-ui/Field";
 import { Card } from "welcome-ui/Card";
 import { Hint } from "welcome-ui/Hint";
 import { Link as WUILink } from "welcome-ui/Link";
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useUpdateJob } from "../hooks/useUpdateJob";
 import { useJob } from "../hooks/useJobs";
 import { useParams } from "react-router-dom";
-
-const CONTRACT_TYPE_OPTIONS = [
-  { label: "Full Time", value: "FULL_TIME" },
-  { label: "Part Time", value: "PART_TIME" },
-  { label: "Temporary", value: "TEMPORARY" },
-  { label: "Freelance", value: "FREELANCE" },
-  { label: "Internship", value: "INTERNSHIP" },
-  { label: "Apprenticeship", value: "APPRENTICESHIP" },
-  { label: "VIE", value: "VIE" },
-];
-
-const STATUS_OPTIONS = [
-  { label: "Draft", value: "draft" },
-  { label: "Published", value: "published" },
-  { label: "Filled", value: "filled" },
-  { label: "Archived", value: "archived" },
-  { label: "Cancelled", value: "cancelled" },
-];
-
-const WORK_MODE_OPTIONS = [
-  { label: "On-site", value: "onsite" },
-  { label: "Remote", value: "remote" },
-  { label: "Hybrid", value: "hybrid" },
-];
+import {
+  CONTRACT_TYPE_OPTIONS,
+  STATUS_OPTIONS,
+  WORK_MODE_OPTIONS,
+  ContractType,
+  StatusType,
+  WorkModeType,
+} from "../utils/jobMap";
 
 export const UpdateJob = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,12 +27,22 @@ export const UpdateJob = () => {
   const { data: job, isLoading, isError, error } = useJob(jobId);
 
   const { mutate: handleUpdate } = useUpdateJob(jobId);
-  const [title, setTitle] = useState(job?.title);
-  const [description, setDescription] = useState(job?.description);
-  const [contractType, setContractType] = useState(job?.contract_type);
-  const [office, setOffice] = useState(job?.office);
-  const [status, setStatus] = useState(job?.status);
-  const [workMode, setWorkMode] = useState(job?.work_mode);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [contractType, setContractType] = useState<ContractType>("FULL_TIME");
+  const [office, setOffice] = useState<string>("");
+  const [status, setStatus] = useState<StatusType>("draft");
+  const [workMode, setWorkMode] = useState<WorkModeType>("onsite");
+
+  useEffect(() => {
+    if (!job) return;
+    setTitle(job.title);
+    setDescription(job.description);
+    setContractType(job.contract_type);
+    setOffice(job.office);
+    setStatus(job.status);
+    setWorkMode(job.work_mode);
+  }, [job]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -57,7 +51,7 @@ export const UpdateJob = () => {
       description,
       contract_type: contractType,
       office,
-      status: "published",
+      status,
       work_mode: workMode,
     });
   };
@@ -74,7 +68,7 @@ export const UpdateJob = () => {
       </WUILink>
 
       <Text variant="heading-xl" className="mb-lg">
-        Create New Job
+        Update Job
       </Text>
 
       <Card style={{ overflow: "visible" }}>
@@ -109,7 +103,7 @@ export const UpdateJob = () => {
                 name="contract_type"
                 value={contractType}
                 options={CONTRACT_TYPE_OPTIONS}
-                onChange={(value) => setContractType(String(value))}
+                onChange={(value) => setContractType(value as ContractType)}
                 disabled={isLoading}
               />
             </Field>
@@ -129,7 +123,7 @@ export const UpdateJob = () => {
                 name="status"
                 value={status}
                 options={STATUS_OPTIONS}
-                onChange={(value) => setStatus(String(value))}
+                onChange={(value) => setStatus(value as StatusType)}
                 disabled={isLoading}
               />
             </Field>
@@ -139,7 +133,7 @@ export const UpdateJob = () => {
                 name="work_mode"
                 value={workMode}
                 options={WORK_MODE_OPTIONS}
-                onChange={(value) => setWorkMode(String(value))}
+                onChange={(value) => setWorkMode(value as WorkModeType)}
                 disabled={isLoading}
               />
             </Field>

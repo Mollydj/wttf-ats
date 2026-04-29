@@ -70,7 +70,6 @@ export const JobList = () => {
         )}
       </div>
 
-      {!user && (
         <SearchJobs
           form={form}
           setField={setField}
@@ -78,7 +77,6 @@ export const JobList = () => {
           onSearch={handleSearch}
           onReset={handleReset}
         />
-      )}
       <div className="flex flex-col gap-md">
         {user && (
           <div className="flex items-center justify-end gap-sm">

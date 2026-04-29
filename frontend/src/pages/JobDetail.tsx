@@ -6,7 +6,6 @@ import { Button } from "welcome-ui/Button";
 import { Link as WUILink } from "welcome-ui/Link";
 import { useJob } from "../hooks/useJobs";
 import Cookies from "js-cookie";
-import React from "react";
 import { Applicant } from "../types/types";
 import { Table } from "welcome-ui/Table";
 
@@ -20,8 +19,6 @@ export const JobDetail = () => {
   if (isError)
     return <Text className="text-red-70">Error: {error.message}</Text>;
   if (!job) return <Text>Job not found</Text>;
-
-  console.log("job>>", job.applicants);
 
   return (
     <div className="p-xl max-w-1200 my-0 mx-auto">
@@ -104,14 +101,14 @@ export const JobDetail = () => {
           <Card.Body>
             <Text variant="heading-sm" className="mb-sm">
               Applicants
-              {job.applicants ? (
+              {job.applicants.length > 0 ? (
                 <Table>
                   <Table.Thead>
                     <Table.Tr>
                       <Table.Th>Email</Table.Th>
                       <Table.Th>Full Name</Table.Th>
                       <Table.Th>Email</Table.Th>
-                      <Table.Th className="text-center w-[80px]">
+                      <Table.Th className="text-center w-80">
                         Status
                       </Table.Th>
                     </Table.Tr>

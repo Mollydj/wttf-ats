@@ -11,7 +11,9 @@ const buildQueryString = (params: JobSearchParams): string => {
   return qs ? `?${qs}` : "";
 };
 
-export const fetchJobs = async (params: JobSearchParams = {}): Promise<Job[]> => {
+export const fetchJobs = async (
+  params: JobSearchParams = {},
+): Promise<Job[]> => {
   const res = await fetch(`/api/jobs${buildQueryString(params)}`);
 
   if (!res.ok) {
@@ -32,7 +34,6 @@ export const fetchJob = async (jobId: number) => {
   const body = await res.json();
   return body.data;
 };
-
 
 import Cookies from "js-cookie";
 
@@ -66,7 +67,7 @@ export type UpdateJobParams = {
 
 export const updateJob = async (
   id: number | string,
-  params: UpdateJobParams
+  params: UpdateJobParams,
 ): Promise<void> => {
   const bearerToken = Cookies.get("user-token");
   const csrfToken = Cookies.get("technical-test-csrf-token");
@@ -84,5 +85,35 @@ export const updateJob = async (
 
   if (!res.ok) {
     throw new Error("Update job failed");
+  }
+};
+
+type CreateJobParams = {
+  title: string;
+  description: string;
+  contract_type: string;
+  office: string;
+  status: string;
+  work_mode: string;
+  profession_id: number;
+};
+
+export const createJob = async (params: CreateJobParams): Promise<void> => {
+  const bearerToken = Cookies.get("user-token");
+  const csrfToken = Cookies.get("technical-test-csrf-token");
+
+  const res = await fetch("/api/jobs", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}),
+      ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+    },
+    body: JSON.stringify({ job: params }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Create job failed");
   }
 };

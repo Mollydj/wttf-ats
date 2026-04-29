@@ -7,11 +7,19 @@ defmodule AtsWeb.Api.JobController do
   action_fallback AtsWeb.FallbackController
 
   @doc """
-  List all jobs.
+  List jobs, with optional search/filter query parameters.
+
+  Supported query params:
+  - `title` — partial, case-insensitive title search
+  - `office` — partial, case-insensitive office/location search
+  - `work_mode` — exact: `onsite`, `remote`, or `hybrid`
+  - `contract_type` — exact: `FULL_TIME`, `PART_TIME`, etc.
+  - `profession_id` — filter by profession
+  - `status` — exact status; pass `"all"` to skip status filter
   """
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def index(conn, _params) do
-    jobs = Jobs.list_jobs()
+  def index(conn, params) do
+    jobs = Jobs.list_jobs(params)
     render(conn, :index, jobs: jobs)
   end
 

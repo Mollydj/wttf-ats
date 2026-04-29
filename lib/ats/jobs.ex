@@ -56,8 +56,69 @@ defmodule Ats.Jobs do
 
   """
   @spec list_jobs() :: [%Job{}]
-  def list_jobs do
-    Repo.all(Job) |> Repo.preload(:profession)
+  @doc """
+  Returns the list of jobs, optionally filtered by search parameters.
+
+  ## Supported params
+
+  - `"title"` — case-insensitive partial match on job title
+  - `"office"` — case-insensitive partial match on office location
+  - `"work_mode"` — exact match on `:onsite | :remote | :hybrid`
+  - `"contract_type"` — exact match on contract type enum
+  - `"profession_id"` — exact match on profession foreign key
+  - `"status"` — exact match on status enum (defaults to published when absent)
+
+  """
+  @spec list_jobs(map()) :: [%Job{}]
+  def list_jobs(params \\ %{}) do
+    Job
+    |> join(:left, [j], p in assoc(j, :profession), as: :profession)
+    |> filter_by_title(params)
+    |> filter_by_office(params)
+    |> filter_by_work_mode(params)
+    |> filter_by_contract_type(params)
+    |> filter_by_profession(params)
+    |> filter_by_status(params)
+    |> order_by([j], desc: j.inserted_at)
+    |> preload([j, profession: p], profession: p)
+    |> Repo.all()
+  end
+
+  defp filter_by_title(query, %{"title" => title}) when is_binary(title) and title != "" do
+    where(query, [j], ilike(j.title, ^"%#{title}%"))
+  end
+  defp filter_by_title(query, _), do: query
+
+  defp filter_by_office(query, %{"office" => office}) when is_binary(office) and office != "" do
+    where(query, [j], ilike(j.office, ^"%#{office}%"))
+  end
+  defp filter_by_office(query, _), do: query
+
+  defp filter_by_work_mode(query, %{"work_mode" => work_mode})
+       when is_binary(work_mode) and work_mode != "" do
+    where(query, [j], j.work_mode == ^work_mode)
+  end
+  defp filter_by_work_mode(query, _), do: query
+
+  defp filter_by_contract_type(query, %{"contract_type" => contract_type})
+       when is_binary(contract_type) and contract_type != "" do
+    where(query, [j], j.contract_type == ^contract_type)
+  end
+  defp filter_by_contract_type(query, _), do: query
+
+  defp filter_by_profession(query, %{"profession_id" => profession_id})
+       when is_binary(profession_id) and profession_id != "" do
+    where(query, [j], j.profession_id == ^profession_id)
+  end
+  defp filter_by_profession(query, _), do: query
+
+  defp filter_by_status(query, %{"status" => "all"}), do: query
+  defp filter_by_status(query, %{"status" => status})
+       when is_binary(status) and status != "" do
+    where(query, [j], j.status == ^status)
+  end
+  defp filter_by_status(query, _) do
+    where(query, [j], j.status == :published)
   end
 
   @doc """

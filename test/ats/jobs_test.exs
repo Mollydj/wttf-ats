@@ -16,9 +16,61 @@ defmodule Ats.JobsTest do
       title: nil
     }
 
-    test "list_jobs/0 returns all jobs" do
-      job = job_fixture()
-      assert Jobs.list_jobs() |> Enum.map(& &1.id) == [job.id]
+    test "list_jobs/0 returns published jobs by default" do
+      published = job_fixture(%{status: "published"})
+      _draft = job_fixture(%{status: "draft"})
+      ids = Jobs.list_jobs() |> Enum.map(& &1.id)
+      assert published.id in ids
+      refute _draft.id in ids
+    end
+
+    test "list_jobs/1 with title filter returns matching jobs (case-insensitive)" do
+      job = job_fixture(%{title: "Elixir Engineer", status: "published"})
+      _other = job_fixture(%{title: "Product Designer", status: "published"})
+
+      result = Jobs.list_jobs(%{"title" => "elixir"}) |> Enum.map(& &1.id)
+      assert result == [job.id]
+    end
+
+    test "list_jobs/1 with office filter returns matching jobs (case-insensitive)" do
+      job = job_fixture(%{office: "Lyon", status: "published"})
+      _other = job_fixture(%{office: "Paris", status: "published"})
+
+      result = Jobs.list_jobs(%{"office" => "lyon"}) |> Enum.map(& &1.id)
+      assert result == [job.id]
+    end
+
+    test "list_jobs/1 with work_mode filter returns matching jobs" do
+      remote = job_fixture(%{work_mode: "remote", status: "published"})
+      _onsite = job_fixture(%{work_mode: "onsite", status: "published"})
+
+      result = Jobs.list_jobs(%{"work_mode" => "remote"}) |> Enum.map(& &1.id)
+      assert result == [remote.id]
+    end
+
+    test "list_jobs/1 with contract_type filter returns matching jobs" do
+      freelance = job_fixture(%{contract_type: "FREELANCE", status: "published"})
+      _full_time = job_fixture(%{contract_type: "FULL_TIME", status: "published"})
+
+      result = Jobs.list_jobs(%{"contract_type" => "FREELANCE"}) |> Enum.map(& &1.id)
+      assert result == [freelance.id]
+    end
+
+    test "list_jobs/1 with combined filters narrows results correctly" do
+      match = job_fixture(%{title: "Backend Dev", work_mode: "remote", status: "published"})
+      _wrong_mode = job_fixture(%{title: "Backend Dev", work_mode: "onsite", status: "published"})
+
+      result = Jobs.list_jobs(%{"title" => "backend", "work_mode" => "remote"}) |> Enum.map(& &1.id)
+      assert result == [match.id]
+    end
+
+    test "list_jobs/1 with status=all bypasses the default published filter" do
+      draft = job_fixture(%{status: "draft"})
+      published = job_fixture(%{status: "published"})
+
+      ids = Jobs.list_jobs(%{"status" => "all"}) |> Enum.map(& &1.id)
+      assert draft.id in ids
+      assert published.id in ids
     end
 
     test "get_job!/1 returns the job with given id" do

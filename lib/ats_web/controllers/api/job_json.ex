@@ -2,6 +2,7 @@ defmodule AtsWeb.Api.JobJSON do
   @moduledoc "JSON rendering for Job resources."
 
   alias Ats.Jobs.Job
+  alias Ats.Professions.Profession
 
   @doc """
   Renders a list of jobs.
@@ -30,8 +31,20 @@ defmodule AtsWeb.Api.JobJSON do
       status: job.status,
       work_mode: job.work_mode,
       profession_id: job.profession_id,
+      profession: profession_data(job.profession),
       inserted_at: job.inserted_at,
       updated_at: job.updated_at
     }
   end
+
+  @spec profession_data(%Profession{} | nil | term()) :: map() | nil
+  defp profession_data(%Profession{} = profession) do
+    %{
+      id: profession.id,
+      name: profession.name,
+      category_name: profession.category_name
+    }
+  end
+
+  defp profession_data(_), do: nil
 end

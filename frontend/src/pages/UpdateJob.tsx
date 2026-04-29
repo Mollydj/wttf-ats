@@ -9,7 +9,9 @@ import { Card } from "welcome-ui/Card";
 import { Hint } from "welcome-ui/Hint";
 import { Link as WUILink } from "welcome-ui/Link";
 import { useState, FormEvent } from "react";
-import { useCreateJob } from "../hooks/useCreateJob";
+import { useUpdateJob } from "../hooks/useUpdateJob";
+import { useJob } from "../hooks/useJobs";
+import { useParams } from "react-router-dom";
 
 const CONTRACT_TYPE_OPTIONS = [
   { label: "Full Time", value: "FULL_TIME" },
@@ -35,33 +37,39 @@ const WORK_MODE_OPTIONS = [
   { label: "Hybrid", value: "hybrid" },
 ];
 
-export const CreateJob = () => {
-  const { mutate: createJob, isPending, error } = useCreateJob();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [contractType, setContractType] = useState("FULL_TIME");
-  const [office, setOffice] = useState("");
-  const [status, setStatus] = useState("draft");
-  const [workMode, setWorkMode] = useState("onsite");
+export const UpdateJob = () => {
+  const { id } = useParams<{ id: string }>();
+  const jobId = Number(id);
+  const { data: job, isLoading, isError, error } = useJob(jobId);
 
-  
+  const { mutate: handleUpdate } = useUpdateJob(jobId);
+  const [title, setTitle] = useState(job?.title);
+  const [description, setDescription] = useState(job?.description);
+  const [contractType, setContractType] = useState(job?.contract_type);
+  const [office, setOffice] = useState(job?.office);
+  const [status, setStatus] = useState(job?.status);
+  const [workMode, setWorkMode] = useState(job?.work_mode);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    createJob({
+    handleUpdate({
       title,
       description,
       contract_type: contractType,
       office,
       status: "published",
       work_mode: workMode,
-      profession_id: 1,
     });
   };
 
   return (
     <div className="p-xl max-w-1200 my-0 mx-auto">
-      <WUILink as={Link} to="/" variant="secondary" className="mb-md inline-block">
+      <WUILink
+        as={Link}
+        to="/"
+        variant="secondary"
+        className="mb-md inline-block"
+      >
         ← Back to jobs
       </WUILink>
 
@@ -71,7 +79,7 @@ export const CreateJob = () => {
 
       <Card style={{ overflow: "visible" }}>
         <Card.Body style={{ overflow: "visible" }}>
-          {error && (
+          {isError && (
             <Hint variant="danger" className="mb-md">
               {error.message}
             </Hint>
@@ -79,31 +87,65 @@ export const CreateJob = () => {
 
           <form onSubmit={handleSubmit}>
             <Field label="Title" required className="mb-md">
-              <InputText value={title} onChange={(e) => setTitle(e.target.value)} required />
+              <InputText
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                disabled={isLoading}
+              />
             </Field>
 
             <Field label="Description" className="mb-md">
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} minRows={4} />
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                minRows={4}
+                disabled={isLoading}
+              />
             </Field>
 
             <Field label="Contract Type" required className="mb-md">
-              <Select name="contract_type" value={contractType} options={CONTRACT_TYPE_OPTIONS} onChange={(value) => setContractType(String(value))} />
+              <Select
+                name="contract_type"
+                value={contractType}
+                options={CONTRACT_TYPE_OPTIONS}
+                onChange={(value) => setContractType(String(value))}
+                disabled={isLoading}
+              />
             </Field>
 
             <Field label="Office" required className="mb-md">
-              <InputText value={office} onChange={(e) => setOffice(e.target.value)} placeholder="e.g. Paris, Remote, London…" required />
+              <InputText
+                value={office}
+                onChange={(e) => setOffice(e.target.value)}
+                placeholder="e.g. Paris, Remote, London…"
+                required
+                disabled={isLoading}
+              />
             </Field>
 
             <Field label="Status" className="mb-md">
-              <Select name="status" value={status} options={STATUS_OPTIONS} onChange={(value) => setStatus(String(value))} />
+              <Select
+                name="status"
+                value={status}
+                options={STATUS_OPTIONS}
+                onChange={(value) => setStatus(String(value))}
+                disabled={isLoading}
+              />
             </Field>
 
             <Field label="Work Mode" className="mb-md">
-              <Select name="work_mode" value={workMode} options={WORK_MODE_OPTIONS} onChange={(value) => setWorkMode(String(value))} />
+              <Select
+                name="work_mode"
+                value={workMode}
+                options={WORK_MODE_OPTIONS}
+                onChange={(value) => setWorkMode(String(value))}
+                disabled={isLoading}
+              />
             </Field>
 
-            <Button type="submit" disabled={isPending} isLoading={isPending}>
-              {isPending ? "Creating..." : "Create Job"}
+            <Button type="submit" disabled={isLoading} isLoading={isLoading}>
+              {isLoading ? "Updating..." : "Update Job"}
             </Button>
           </form>
         </Card.Body>

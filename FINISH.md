@@ -111,7 +111,7 @@ yarn test
 
 ### State management — React Query
 
-Used `@tanstack/react-query` for all server state. It handles caching, loading/error states, and cache invalidation after mutations, which removes the need for any manual `useEffect`-based data fetching. It also makes the files more readable and shorter
+Used `@tanstack/react-query` for all server state. It handles caching, loading/error states, and cache invalidation after mutations, which removes the need for any manual `useEffect`-based data fetching. It also makes the files more readable and shorter. All Apis were converted to using reactQuery Hooks
 
 ### Auth — cookie-based with `useMe`
 
@@ -139,6 +139,8 @@ Search and filtering is handled entirely on the backend via composable Ecto quer
 -   Improve test coverage — particularly for `JobDetail` and the search filtering behavior
 - Improve mock data in tests for more uniform experience
 -   Add loading skeletons instead of full-page spinners for a better UX
+-   Incorporate pagination
+-   Make components more accessible with a11y
 
 ----------
 

@@ -100,6 +100,7 @@ export const UpdateJob = () => {
 
             <Field label="Contract Type" required className="mb-md">
               <Select
+                isClearable
                 name="contract_type"
                 value={contractType}
                 options={CONTRACT_TYPE_OPTIONS}
@@ -120,6 +121,7 @@ export const UpdateJob = () => {
 
             <Field label="Status" className="mb-md">
               <Select
+                isClearable
                 name="status"
                 value={status}
                 options={STATUS_OPTIONS}

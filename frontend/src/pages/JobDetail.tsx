@@ -4,40 +4,23 @@ import { Tag } from "welcome-ui/Tag";
 import { Card } from "welcome-ui/Card";
 import { Button } from "welcome-ui/Button";
 import { Link as WUILink } from "welcome-ui/Link";
-import { useState, useEffect } from "react";
-
-interface Job {
-  id: number;
-  title: string;
-  description: string;
-  contract_type: string;
-  office: string;
-  status: string;
-  work_mode: string;
-}
+import { useJob } from "../hooks/useJobs";
+import Cookies from "js-cookie";
+import React from "react";
+import { Applicant } from "../types/types";
 
 export const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [job, setJob] = useState<Job | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const jobId = Number(id);
+  const bearerToken = Cookies.get("user-token");
 
-  useEffect(() => {
-    fetch(`/api/jobs/${id}`)
-      .then((res) => res.json())
-      .then((response: { data: Job }) => {
-        setJob(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [id]);
-
-  if (loading) return <Text>Loading...</Text>;
-  if (error) return <Text className="text-red-70">Error: {error}</Text>;
+  const { data: job, isLoading, isError, error } = useJob(jobId);
+  if (isLoading) return <Text>Loading...</Text>;
+  if (isError)
+    return <Text className="text-red-70">Error: {error.message}</Text>;
   if (!job) return <Text>Job not found</Text>;
+
+  console.log("job>>", job.applicants);
 
   return (
     <div className="p-xl max-w-1200 my-0 mx-auto">
@@ -65,9 +48,11 @@ export const JobDetail = () => {
             </Tag>
           </div>
         </div>
-        <Button as={Link} to={`/jobs/${job.id}/apply`}>
-          Apply now
-        </Button>
+        {!bearerToken && (
+          <Button as={Link} to={`/jobs/${job.id}/apply`}>
+            Apply now
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-col gap-md">
@@ -111,6 +96,20 @@ export const JobDetail = () => {
                 <Text variant="body-md">{job.status}</Text>
               </div>
             </div>
+          </Card.Body>
+        </Card>
+
+        <Card>
+          <Card.Body>
+            <Text variant="heading-sm" className="mb-sm">
+              Applicants
+              {job.applicants.map((applicant: Job<Applicant>) => (
+                <React.Fragment key={applicant.id}>
+                  <Text variant="body-md">{applicant.email}</Text>
+                  <Text variant="body-md">{applicant.}</Text>
+                </React.Fragment>
+              ))}
+            </Text>
           </Card.Body>
         </Card>
       </div>

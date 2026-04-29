@@ -7,36 +7,19 @@ import { Tag } from "welcome-ui/Tag";
 import { Loader } from "welcome-ui/Loader";
 import Cookies from "js-cookie";
 import { logout } from "../api/logout";
-
-interface Job {
-  id: string;
-  title: string;
-  description: string;
-  contract_type: string;
-  office: string;
-  status: string;
-}
+import { useJobs } from "../hooks/useJobs";
+import { JobSearchParams } from "../types/types";
+import { useDeleteJob } from "../hooks/useDeleteJob";
+import { useUpdateJob } from "../hooks/useUpdateJob";
 
 export const JobList = () => {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useState<JobSearchParams>({});
+  const { data: jobs = [], isLoading, isError } = useJobs(searchParams);
+  const { mutate: handleDelete } = useDeleteJob();
+
   const [hasBearerToken, setHasBearerToken] = useState<boolean>(false);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch("/api/jobs")
-      .then((res) => res.json())
-      .then((response: { data: Job[] }) => {
-        setJobs(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
 
   useEffect(() => {
     const csrfToken = Cookies.get("technical-test-csrf-token");
@@ -54,22 +37,22 @@ export const JobList = () => {
               ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
             },
           });
-
           if (res.ok) {
             const body = await res.json().catch(() => ({}));
             setUser(body?.data ?? null);
           } else {
             setUser(null);
           }
-        } catch (e) {
+        } catch {
           setUser(null);
         }
       })();
     }
   }, []);
 
-  if (loading) return <Text>Loading...</Text>;
-  if (error) return <Text color="red">Error: {error}</Text>;
+  if (isLoading) return <Loader size="md" />;
+  if (isError)
+    return <Text color="red">Something went wrong loading jobs.</Text>;
 
   return (
     <div className="p-xl max-w-1200 my-0 mx-auto">
@@ -87,7 +70,7 @@ export const JobList = () => {
                   onClick={async () => {
                     try {
                       await logout();
-                    } catch (e) {}
+                    } catch {}
                     setUser(null);
                     setHasBearerToken(false);
                     navigate("/signin");
@@ -125,30 +108,52 @@ export const JobList = () => {
             <Card.Body>
               <div className="flex items-start justify-between gap-md">
                 <div className="flex-1 min-w-0">
-                  <Link
-                    to={`/jobs/${job.id}`}
-                    className="no-underline hover:underline"
-                  >
+                  {user ? (
+                    <Link
+                      to={`/jobs/${job.id}`}
+                      className="no-underline hover:underline"
+                    >
+                      <Text variant="heading-md">{job.title}</Text>
+                    </Link>
+                  ) : (
                     <Text variant="heading-md">{job.title}</Text>
-                  </Link>
+                  )}
                   <Text variant="body-sm" className="mt-xs" lines={2}>
                     {job.description}
                   </Text>
                   <div className="flex flex-wrap gap-xs mt-sm">
-                    <Tag size="md" variant={"blue"}>
+                    <Tag size="md" variant="blue">
                       {job.contract_type}
                     </Tag>
                     <Tag size="md" variant="light-blue">
                       {job.office}
                     </Tag>
-                    <Tag size="md" variant={"green"}>
+                    <Tag size="md" variant="green">
                       {job.status}
                     </Tag>
                   </div>
                 </div>
-                <Button as={Link} to={`/jobs/${job.id}/apply`} size="sm">
-                  Apply
-                </Button>
+                <div className="flex gap-sm">
+                  {!user && (
+                    <Button as={Link} to={`/jobs/${job.id}/apply`} size="sm">
+                      Apply
+                    </Button>
+                  )}
+                  {user && (
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => handleDelete(job.id)}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                  {user && (
+                    <Button as={Link} to={`/jobs/${job.id}/update`} size="sm">
+                      edit
+                    </Button>
+                  )}
+                </div>
               </div>
             </Card.Body>
           </Card>

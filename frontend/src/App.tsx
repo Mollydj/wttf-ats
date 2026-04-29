@@ -8,6 +8,7 @@ import { SignOut } from "./pages/SignOut";
 import { Apply } from "./pages/Apply";
 
 import "./index.css";
+import { UpdateJob } from "./pages/UpdateJob";
 
 export const App = () => {
   return (
@@ -21,6 +22,7 @@ export const App = () => {
         <Route path="/jobs/:id" element={<JobDetail />} />
         <Route path="/jobs/:jobId/apply" element={<Apply />} />
         <Route path="/jobs/new" element={<CreateJob />} />
+        <Route path="/jobs/:id/update" element={<UpdateJob />} />
       </Routes>
     </BrowserRouter>
   );

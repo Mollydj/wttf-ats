@@ -6,7 +6,7 @@ export interface Profession {
   category_name: string;
 }
 
-export interface Job {
+export type Job = {
   id: number;
   title: string;
   description: string;
@@ -16,9 +16,10 @@ export interface Job {
   work_mode: 'onsite' | 'remote' | 'hybrid';
   profession_id: number | null;
   profession: Profession | null;
+  applicants: Applicant[];
   inserted_at: string;
   updated_at: string;
-}
+};
 
 export interface ApiResponse<T> {
   data: T;

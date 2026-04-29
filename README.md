@@ -1,102 +1,153 @@
-# Technical Test for Frontend Developer - Application Tracking System
 
-Welcome to the Frontend Developer Job Application Tracking System!
+# ATS — Application Tracking System
 
-This application is a simplified job board.
-An unregistered user is able to list all jobs and can apply to a job.
-It provides a platform to manage job offers and track candidate information.
+A simplified job board built with React + Phoenix/Elixir.
 
-A registered user can create, edit, and delete job offers.
-On each job offer, a registered user can see the list of candidates who have applied to the job.
+-   **Unauthenticated users** can browse and search job listings, and apply to a job.
+-   **Authenticated users** can create, edit, and delete job offers, and view applicants per job.
 
 ## Repository Structure
 
 This is a monorepo containing both frontend and backend:
 
-- **Frontend (`/frontend`):** React 19 application with TypeScript
-- **Backend (root):** Phoenix/Elixir REST API
+-   **`/frontend`** — React 19 + TypeScript + Vite
+-   **`/` (root)** — Phoenix/Elixir REST API + PostgreSQL
 
-## Installation
+----------
 
-1. Clone the repository
-2. Navigate to the project directory: `cd technical-test-fullstack`
-3. Install language versions and dependencies:
+## Setup
 
-   We suggest you use asdf (or another version manager) to manage Erlang, Elixir and Node versions.
+### Prerequisites
 
-   To install asdf, visit <http://asdf-vm.com/guide/getting-started.html>.
+We recommend [asdf](http://asdf-vm.com/guide/getting-started.html) to manage language versions. The required versions are declared in `.tool-versions`.
 
-   Add the required plugins:
+```bash
+asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
+asdf plugin add elixir https://github.com/asdf-vm/asdf-elixir.git
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+asdf install
 
-   ```bash
-   asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
-   asdf plugin add elixir https://github.com/asdf-vm/asdf-elixir.git
-   asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-   ```
+```
 
-   Then install the versions specified in the `.tool-versions` file:
+### Backend
 
-   ```bash
-   asdf install
-   ```
+**1. Install Elixir dependencies**
 
-   You can now install the Elixir dependencies:
+```bash
+mix deps.get
 
-   ```bash
-   mix deps.get
-   ```
+```
 
-4. Set up the database and update the configuration in `config/dev.exs` or start a Docker container with the `docker-compose.yml` file included in the project.
-5. Create and migrate the database: `mix ecto.setup`
-6. Run the tests: `mix test`
-7. Start the Phoenix server: `mix phx.server`
-8. Frontend Setup:
+**2. Set up the database**
 
-   ```bash
-   cd frontend
-   corepack enable
-   yarn install
-   yarn dev  # Starts on http://localhost:5173
-   ```
+The backend expects a PostgreSQL instance. You can use the included Docker Compose file:
 
-## Exercise
+```bash
+docker-compose up -d
 
-We are glad to introduce you to this technical test which will help us better understand your skills and competencies related to our tech stack. In this exercise, we will use our in-house built Applicant Tracking System (ATS) application developed with React and Phoenix Elixir.
+```
 
-The goal of this test is to simulate a real-world scenario where you will need to add a new feature to an existing application.
-Your work will be evaluated based on your approach, your understanding of the problem and the quality of your code.
+This starts Postgres on port `5432` with user/password `postgres`. The database config lives in `config/dev.exs` — update it if your local setup differs.
 
-You need to implement a **Job search function** !
+**3. Create, migrate, and seed the database**
 
-That new feature must allow all users to search for jobs. This should allow users to search using various parameters like job title, location, work mode, etc. You can extend this requirement to anything that makes sense for this project. You will have to implement the backend functionality (vibe coding only is ok!).
+```bash
+mix ecto.setup
 
-## Evaluation Criteria
+```
 
-**Frontend**
+This runs `ecto.create`, `ecto.migrate`, and `seeds.exs` (which inserts sample jobs, professions, and candidates).
 
-- React best practices and component architecture
-- Proper use of hooks and state management
-- Code organization and reusability
-- UI/UX quality with welcome-ui
-- Testing quality and coverage
-- TypeScript usage and type safety
-- Search functionality is done on the backend (vibe-code)
+**4. Run backend tests**
 
-**Overall**
+```bash
+mix test
 
-- Git commit history and messages
-- Code documentation and comments
-- Problem-solving approach
-- Attention to requirements
+```
 
-## Notes
+**5. Start the Phoenix server**
 
-- Take your time and demonstrate your abilities
-- Focus on code quality over quantity
-- Don't hesitate to update the readme to explain your decisions and what you would have done if given more time
-- Be transparent on LLM usage!
-- If you run out of time, prioritize completing the required task over improving it
-- You can add additional libraries if needed, but justify your choices
+```bash
+mix phx.server
 
-Happy coding and good luck!
-# wttf-ats
+```
+
+The API will be available at `http://localhost:4000`.
+
+----------
+
+### Frontend
+
+To run the frontend open a new terminal from the root folder
+
+```bash
+cd frontend
+corepack enable
+yarn install
+yarn dev
+
+```
+
+**Start the dev server**
+
+```bash
+yarn dev
+
+```
+
+The app will be available at `http://localhost:5173`.
+
+**Run frontend tests**
+
+```bash
+yarn test
+
+```
+
+----------
+
+
+## Technical Decisions
+
+### State management — React Query
+
+Used `@tanstack/react-query` for all server state. It handles caching, loading/error states, and cache invalidation after mutations, which removes the need for any manual `useEffect`-based data fetching. It also makes the files more readable and shorter. All Apis were converted to using reactQuery Hooks
+
+### Auth — cookie-based with `useMe`
+
+Authentication state is derived from a `user-token` cookie set by the backend. A `useMe` hook wraps the `/api/me` call with React Query, making the current user available reactively across the app without prop drilling or a context provider.
+
+### Type safety
+
+Union types (`ContractType`, `StatusType`, `WorkModeType`) are defined once in `types/types.ts` and referenced by both the `Job` type and the select option arrays in `utils/jobMap.ts`. This ensures the form options and the API types stay in sync.
+
+### Search — backend-driven
+
+Search and filtering is handled entirely on the backend via composable Ecto query filters. The frontend sends query parameters and React Query re-fetches when they change, so no client-side filtering logic is needed.
+
+### Libraries added
+
+-   `@tanstack/react-query` — server state, caching, mutations
+-   `js-cookie` — read auth cookies set by the Phoenix backend
+
+----------
+
+## What I Would Do With More Time
+
+-   Add route guards to redirect unauthenticated users away from `/jobs/new` and `/jobs/:id/update`
+-   Add a profession selector to the Create/Update job forms
+-   Improve test coverage — particularly for `JobDetail` and the search filtering behavior
+- Improve mock data in tests for more uniform experience
+-   Add loading skeletons instead of full-page spinners for a better UX
+-   Incorporate pagination
+-   Make components more accessible with a11y
+
+----------
+
+## LLM Usage
+
+Claude was used to assist with:
+-   Typing the select option arrays and union types
+-   Refactoring auth state into the `useMe` hook with React Query
+-   Fixing error in test cases
+-   Vibe code the introduction to starting the backend

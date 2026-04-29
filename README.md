@@ -84,7 +84,6 @@ To run the frontend open a new terminal from the root folder
 cd frontend
 corepack enable
 yarn install
-yarn dev
 
 ```
 
@@ -111,7 +110,7 @@ yarn test
 
 ### State management — React Query
 
-Used `@tanstack/react-query` for all server state. It handles caching, loading/error states, and cache invalidation after mutations, which removes the need for any manual `useEffect`-based data fetching. It also makes the files more readable and shorter. All Apis were converted to using reactQuery Hooks
+Used `@tanstack/react-query` for all server state. It handles caching, loading/error states, and cache invalidation after mutations, which removes the need for any manual `useEffect`-based data fetching. It also makes the files more readable and shorter. All API calls were converted to React Query hooks.
 
 ### Auth — cookie-based with `useMe`
 

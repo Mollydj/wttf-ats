@@ -1,56 +1,32 @@
-import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "welcome-ui/Button";
 import { Text } from "welcome-ui/Text";
 import { Card } from "welcome-ui/Card";
 import { Tag } from "welcome-ui/Tag";
 import { Loader } from "welcome-ui/Loader";
-import Cookies from "js-cookie";
 import { logout } from "../api/logout";
 import { useJobs } from "../hooks/useJobs";
-import { JobSearchParams } from "../types/types";
 import { useDeleteJob } from "../hooks/useDeleteJob";
-import { useUpdateJob } from "../hooks/useUpdateJob";
+import { useJobSearch } from "../hooks/useJobSearch";
+import { SearchJobs } from "./SearchJobs";
+import { useMe } from "../hooks/useUser";
 
 export const JobList = () => {
-  const [searchParams, setSearchParams] = useState<JobSearchParams>({});
+  const {
+    form,
+    setField,
+    searchParams,
+    hasActiveFilters,
+    handleSearch,
+    handleReset,
+  } = useJobSearch();
   const { data: jobs = [], isLoading, isError } = useJobs(searchParams);
+  const { user, hasBearerToken, isLoading: userLoading, clearUser } = useMe();
   const { mutate: handleDelete } = useDeleteJob();
-
-  const [hasBearerToken, setHasBearerToken] = useState<boolean>(false);
-  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const csrfToken = Cookies.get("technical-test-csrf-token");
-    const bearerToken = Cookies.get("user-token");
-    setHasBearerToken(Boolean(bearerToken));
 
-    if (bearerToken) {
-      (async () => {
-        try {
-          const res = await fetch("/api/me", {
-            credentials: "include",
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${bearerToken}`,
-              ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
-            },
-          });
-          if (res.ok) {
-            const body = await res.json().catch(() => ({}));
-            setUser(body?.data ?? null);
-          } else {
-            setUser(null);
-          }
-        } catch {
-          setUser(null);
-        }
-      })();
-    }
-  }, []);
-
-  if (isLoading) return <Loader size="md" />;
+  if (isLoading || userLoading) return <Loader size="md" />;
   if (isError)
     return <Text color="red">Something went wrong loading jobs.</Text>;
 
@@ -71,8 +47,7 @@ export const JobList = () => {
                     try {
                       await logout();
                     } catch {}
-                    setUser(null);
-                    setHasBearerToken(false);
+                    clearUser();
                     navigate("/signin");
                   }}
                 >
@@ -95,6 +70,15 @@ export const JobList = () => {
         )}
       </div>
 
+      {!user && (
+        <SearchJobs
+          form={form}
+          setField={setField}
+          hasActiveFilters={hasActiveFilters}
+          onSearch={handleSearch}
+          onReset={handleReset}
+        />
+      )}
       <div className="flex flex-col gap-md">
         {user && (
           <div className="flex items-center justify-end gap-sm">
@@ -102,6 +86,13 @@ export const JobList = () => {
               Create a new job
             </Button>
           </div>
+        )}
+        {jobs.length === 0 && (
+          <Card>
+            <Card.Body>
+              <Text>No Jobs Found</Text>
+            </Card.Body>
+          </Card>
         )}
         {jobs.map((job) => (
           <Card key={job.id} size="sm">
@@ -125,6 +116,9 @@ export const JobList = () => {
                     <Tag size="md" variant="blue">
                       {job.contract_type}
                     </Tag>
+                    <Tag size="md" variant="light-green">
+                      {job.work_mode}
+                    </Tag>
                     <Tag size="md" variant="light-blue">
                       {job.office}
                     </Tag>
@@ -140,17 +134,17 @@ export const JobList = () => {
                     </Button>
                   )}
                   {user && (
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => handleDelete(job.id)}
-                    >
-                      Delete
+                    <Button as={Link} to={`/jobs/${job.id}/update`} size="sm">
+                      edit
                     </Button>
                   )}
                   {user && (
-                    <Button as={Link} to={`/jobs/${job.id}/update`} size="sm">
-                      edit
+                    <Button
+                      size="sm"
+                      variant="tertiary-danger"
+                      onClick={() => handleDelete(job.id)}
+                    >
+                      Delete
                     </Button>
                   )}
                 </div>

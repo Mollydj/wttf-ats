@@ -78,10 +78,13 @@ The API will be available at `http://localhost:4000`.
 
 ### Frontend
 
+To run the frontend open a new terminal from the root folder
+
 ```bash
 cd frontend
 corepack enable
 yarn install
+yarn dev
 
 ```
 
@@ -145,3 +148,4 @@ Claude was used to assist with:
 -   Typing the select option arrays and union types
 -   Refactoring auth state into the `useMe` hook with React Query
 -   Fixing error in test cases
+-   Vibe code the introduction to starting the backend

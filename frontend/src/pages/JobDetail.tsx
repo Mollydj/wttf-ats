@@ -8,6 +8,7 @@ import { useJob } from "../hooks/useJobs";
 import Cookies from "js-cookie";
 import React from "react";
 import { Applicant } from "../types/types";
+import { Table } from "welcome-ui/Table";
 
 export const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -103,12 +104,33 @@ export const JobDetail = () => {
           <Card.Body>
             <Text variant="heading-sm" className="mb-sm">
               Applicants
-              {job.applicants.map((applicant: Job<Applicant>) => (
-                <React.Fragment key={applicant.id}>
-                  <Text variant="body-md">{applicant.email}</Text>
-                  <Text variant="body-md">{applicant.}</Text>
-                </React.Fragment>
-              ))}
+              {job.applicants ? (
+                <Table>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Email</Table.Th>
+                      <Table.Th>Full Name</Table.Th>
+                      <Table.Th>Email</Table.Th>
+                      <Table.Th className="text-center w-[80px]">
+                        Status
+                      </Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {job?.applicants.map((applicant: Applicant) => (
+                      <Table.Tr>
+                        <Table.Td>{applicant.candidate.full_name}</Table.Td>
+                        <Table.Td>{applicant.candidate.email}</Table.Td>
+                        <Table.Td>{applicant.candidate.email}</Table.Td>
+                        <Table.Td>{applicant.status}</Table.Td>
+                        <Table.Td className="text-center"></Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              ) : (
+                <Text variant="body-xl">No Applicants Yet</Text>
+              )}
             </Text>
           </Card.Body>
         </Card>

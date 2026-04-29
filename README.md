@@ -135,8 +135,8 @@ Search and filtering is handled entirely on the backend via composable Ecto quer
 
 -   Add route guards to redirect unauthenticated users away from `/jobs/new` and `/jobs/:id/update`
 -   Add a profession selector to the Create/Update job forms
--   Improve test coverage — particularly for `JobDetail` and the search filtering behavior
-- Improve mock data in tests for more uniform experience
+-   Improve test coverage — particularly for the search filtering and navigating behavior
+-   Improve mock data in tests for more uniform experience
 -   Add loading skeletons instead of full-page spinners for a better UX
 -   Incorporate pagination
 -   Make components more accessible with a11y

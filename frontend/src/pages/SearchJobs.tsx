@@ -36,7 +36,7 @@ export const SearchJobs = ({
             <InputText
               value={form.title}
               onChange={(e) => setField("title", e.target.value)}
-              placeholder="e.g. Backend Engineer"
+              placeholder="Job Title"
               onKeyDown={(e) => e.key === "Enter" && onSearch()}
             />
           </Field>
@@ -45,7 +45,7 @@ export const SearchJobs = ({
             <InputText
               value={form.office}
               onChange={(e) => setField("office", e.target.value)}
-              placeholder="e.g. Paris"
+              placeholder="City"
               onKeyDown={(e) => e.key === "Enter" && onSearch()}
             />
           </Field>

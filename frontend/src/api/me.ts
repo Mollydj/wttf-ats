@@ -21,7 +21,7 @@ export const fetchMe = async (): Promise<User | null> => {
   });
 
   if (!res.ok) return null;
-
+  
   const body = await res.json().catch(() => ({}));
   return body?.data ?? null;
 };

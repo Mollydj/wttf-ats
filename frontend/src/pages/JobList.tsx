@@ -9,7 +9,7 @@ import { useJobs } from "../hooks/useJobs";
 import { useDeleteJob } from "../hooks/useDeleteJob";
 import { useJobSearch } from "../hooks/useJobSearch";
 import { SearchJobs } from "./SearchJobs";
-import { useMe } from "../hooks/useUser";
+import { useMe } from "../hooks/useMe";
 
 export const JobList = () => {
   const {
@@ -135,7 +135,7 @@ export const JobList = () => {
                   )}
                   {user && (
                     <Button as={Link} to={`/jobs/${job.id}/update`} size="sm">
-                      edit
+                      Edit
                     </Button>
                   )}
                   {user && (

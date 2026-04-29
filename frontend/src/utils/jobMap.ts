@@ -1,18 +1,4 @@
-export type ContractType =
-  | "FULL_TIME"
-  | "PART_TIME"
-  | "TEMPORARY"
-  | "FREELANCE"
-  | "INTERNSHIP"
-  | "APPRENTICESHIP"
-  | "VIE";
 
-export type StatusType =
-  | "draft"
-  | "published"
-  | "filled"
-  | "archived"
-  | "cancelled";
 
 export type WorkModeType = "onsite" | "remote" | "hybrid";
 

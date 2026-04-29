@@ -105,8 +105,8 @@ export const JobDetail = () => {
                 <Table>
                   <Table.Thead>
                     <Table.Tr>
-                      <Table.Th>Email</Table.Th>
                       <Table.Th>Full Name</Table.Th>
+                      <Table.Th>Phone Number</Table.Th>
                       <Table.Th>Email</Table.Th>
                       <Table.Th className="text-center w-80">
                         Status
@@ -115,10 +115,10 @@ export const JobDetail = () => {
                   </Table.Thead>
                   <Table.Tbody>
                     {job?.applicants.map((applicant: Applicant) => (
-                      <Table.Tr>
+                      <Table.Tr key={applicant.id}>
+                        <Table.Td>{applicant.candidate.email}</Table.Td>
                         <Table.Td>{applicant.candidate.full_name}</Table.Td>
-                        <Table.Td>{applicant.candidate.email}</Table.Td>
-                        <Table.Td>{applicant.candidate.email}</Table.Td>
+                        <Table.Td>{applicant.candidate.phone}</Table.Td>
                         <Table.Td>{applicant.status}</Table.Td>
                         <Table.Td className="text-center"></Table.Td>
                       </Table.Tr>

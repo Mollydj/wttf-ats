@@ -7,6 +7,7 @@
   "scripts": {
     "start": "concurrently \"yarn start:back\" \"yarn start:front\"",
     "start:back": "mix phx.server",
+    "test": "vitest",
     "start:front": "cd frontend && yarn dev",
     "install:front": "cd frontend && yarn install",
     "build:front": "cd frontend && yarn build",

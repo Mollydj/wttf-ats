@@ -9,8 +9,7 @@ export const useUpdateJob = (id: number | string) => {
   return useMutation({
     mutationFn: (params: UpdateJobParams) => updateJob(id, params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["jobs"] });
-      queryClient.invalidateQueries({ queryKey: ["job", id] });
+      queryClient.invalidateQueries({ queryKey: ["jobs", id] });
       navigate("/");
     },
   });

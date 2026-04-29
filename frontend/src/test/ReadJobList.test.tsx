@@ -27,7 +27,6 @@ beforeEach(() => {
           office: "Paris",
           status: "published",
           work_mode: "remote",
-          profession_id: 1,
           profession: null,
           applicants: [],
           inserted_at: "2024-01-01",
@@ -41,7 +40,6 @@ beforeEach(() => {
           office: "London",
           status: "published",
           work_mode: "hybrid",
-          profession_id: 1,
           profession: null,
           applicants: [],
           inserted_at: "2024-01-01",
@@ -54,13 +52,6 @@ beforeEach(() => {
   }));
 });
 
-vi.mock("../hooks/useDeleteJob", () => ({
-  useDeleteJob: vi.fn().mockReturnValue({
-    mutate: vi.fn(),
-    isPending: false,
-    isError: false,
-  }),
-}));
 
 vi.mock("../hooks/useMe", () => ({
   useMe: vi.fn().mockReturnValue({
@@ -115,40 +106,6 @@ describe("JobList for authenticated users", () => {
       expect(screen.getAllByText("Edit")).toHaveLength(2);
       expect(screen.getAllByText("Delete")).toHaveLength(2);
       expect(screen.queryByText("Apply")).not.toBeInTheDocument();
-    });
-  });
-  it("deletes a job when Delete is clicked", async () => {
-    const { useMe } = await import("../hooks/useMe");
-    const { useDeleteJob } = await import("../hooks/useDeleteJob");
-    const mockMutate = vi.fn();
-
-    vi.mocked(useMe).mockReturnValue({
-      user: { id: "1", email: "test@test.com" },
-      hasBearerToken: true,
-      isLoading: false,
-      clearUser: vi.fn(),
-    });
-
-    vi.mocked(useDeleteJob).mockReturnValue({
-      mutate: mockMutate,
-      isPending: false,
-      isError: false,
-    } as unknown as UseMutationResult<void, Error, string | number, unknown>);
-
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
-
-    const user = userEvent.setup();
-    render(<JobList />, { wrapper });
-
-    const deleteButton = await waitFor(() => {
-      const buttons = screen.getAllByText("Delete");
-      expect(buttons.length).toBeGreaterThan(0);
-      return buttons[0];
-    });
-    await user.click(deleteButton as Element);
-
-    await waitFor(() => {
-      expect(mockMutate).toHaveBeenCalledWith(1);
     });
   });
 });

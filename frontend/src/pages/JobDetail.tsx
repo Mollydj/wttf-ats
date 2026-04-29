@@ -5,16 +5,15 @@ import { Card } from "welcome-ui/Card";
 import { Button } from "welcome-ui/Button";
 import { Link as WUILink } from "welcome-ui/Link";
 import { useJob } from "../hooks/useJobs";
-import Cookies from "js-cookie";
 import { Applicant } from "../types/types";
 import { Table } from "welcome-ui/Table";
+import { useMe } from "../hooks/useMe";
 
 export const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const jobId = Number(id);
-  const bearerToken = Cookies.get("user-token");
-
   const { data: job, isLoading, isError, error } = useJob(jobId);
+  const { hasBearerToken } = useMe();
   if (isLoading) return <Text>Loading...</Text>;
   if (isError)
     return <Text className="text-red-70">Error: {error.message}</Text>;
@@ -46,7 +45,7 @@ export const JobDetail = () => {
             </Tag>
           </div>
         </div>
-        {!bearerToken && (
+        {!hasBearerToken && (
           <Button as={Link} to={`/jobs/${job.id}/apply`}>
             Apply now
           </Button>
@@ -108,9 +107,7 @@ export const JobDetail = () => {
                       <Table.Th>Full Name</Table.Th>
                       <Table.Th>Phone Number</Table.Th>
                       <Table.Th>Email</Table.Th>
-                      <Table.Th className="text-center w-80">
-                        Status
-                      </Table.Th>
+                      <Table.Th className="text-center w-80">Status</Table.Th>
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>

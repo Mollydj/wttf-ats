@@ -95,7 +95,6 @@ type CreateJobParams = {
   office: string;
   status: string;
   work_mode: string;
-  profession_id: number;
 };
 
 export const createJob = async (params: CreateJobParams): Promise<void> => {

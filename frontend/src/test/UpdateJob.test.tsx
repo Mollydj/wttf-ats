@@ -20,7 +20,6 @@ vi.mock("../hooks/useJobs", () => ({
       office: "Paris",
       status: "published",
       work_mode: "remote",
-      profession_id: 1,
       profession: null,
       applicants: [],
       inserted_at: "2024-01-01",

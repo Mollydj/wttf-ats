@@ -30,9 +30,8 @@ export const CreateJob = () => {
       description,
       contract_type: contractType,
       office,
-      status: "published",
+      status,
       work_mode: workMode,
-      profession_id: 1,
     });
   };
 

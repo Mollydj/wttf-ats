@@ -1,8 +1,4 @@
-
-
-export type WorkModeType = "onsite" | "remote" | "hybrid";
-
-export type Option<T extends string> = { label: string; value: T };
+import { ContractType, Option, StatusType, WorkModeType } from "../types/types";
 
 export const CONTRACT_TYPE_OPTIONS: Option<ContractType>[] = [
   { label: "Full Time", value: "FULL_TIME" },

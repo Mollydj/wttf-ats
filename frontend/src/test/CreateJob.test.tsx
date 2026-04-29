@@ -46,8 +46,10 @@ describe("CreateJob", () => {
           title: "Backend Engineer",
           description: "Build APIs",
           office: "Paris",
-          status: "published",
-        })
+          contract_type: "FULL_TIME",
+          status: "draft",
+          work_mode: "onsite",
+        }),
       );
     });
   });

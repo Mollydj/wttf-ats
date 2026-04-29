@@ -10,11 +10,10 @@ export type Job = {
   id: number;
   title: string;
   description: string;
-  contract_type: 'FULL_TIME' | 'PART_TIME' | 'TEMPORARY' | 'FREELANCE' | 'INTERNSHIP' | 'APPRENTICESHIP' | 'VIE';
+  contract_type: ContractType;
   office: string;
-  status: 'draft' | 'published' | 'filled' | 'archived' | 'cancelled';
-  work_mode: 'onsite' | 'remote' | 'hybrid';
-  profession_id: number | null;
+  status: StatusType;
+  work_mode: WorkModeType;
   profession: Profession | null;
   applicants: Applicant[];
   inserted_at: string;
@@ -50,5 +49,26 @@ export interface JobSearchParams {
   office?: string;
   work_mode?: string;
   contract_type?: string;
-  profession_id?: string;
 }
+
+
+export type ContractType =
+  | "FULL_TIME"
+  | "PART_TIME"
+  | "TEMPORARY"
+  | "FREELANCE"
+  | "INTERNSHIP"
+  | "APPRENTICESHIP"
+  | "VIE";
+
+export type StatusType =
+  | "draft"
+  | "published"
+  | "filled"
+  | "archived"
+  | "cancelled";
+
+
+export type WorkModeType = "onsite" | "remote" | "hybrid";
+
+export type Option<T extends string> = { label: string; value: T };

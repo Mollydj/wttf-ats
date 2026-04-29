@@ -16,10 +16,9 @@ import {
   CONTRACT_TYPE_OPTIONS,
   STATUS_OPTIONS,
   WORK_MODE_OPTIONS,
-  ContractType,
-  StatusType,
-  WorkModeType,
+
 } from "../utils/jobMap";
+import { ContractType, StatusType, WorkModeType } from "../types/types";
 
 export const UpdateJob = () => {
   const { id } = useParams<{ id: string }>();
